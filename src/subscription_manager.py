@@ -17,9 +17,14 @@ class SubscriptionManager:
         return self.subscriptions
     
     def add_subscription(self, repo):
-        if repo not in self.subscriptions:
-            self.subscriptions.append(repo)
-            self.save_subscriptions()
+        try:
+            if repo not in self.subscriptions:
+                self.subscriptions.append(repo)
+                self.save_subscriptions()
+                return True, "订阅已添加"
+            return False, "订阅已存在"
+        except Exception as e:
+            return False, f"订阅失败，原因：{str(e)}"
     
     def remove_subscription(self, repo):
         if repo in self.subscriptions:
