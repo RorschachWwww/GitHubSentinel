@@ -4,11 +4,13 @@ from openai import OpenAI  # 导入OpenAI库用于访问GPT模型
 from logger import LOG  # 导入日志模块
 
 class LLM:
-    def __init__(self):
+    def __init__(self, source="github"):
+        print(f"source:{source}")
         # 创建一个OpenAI客户端实例
-        self.client = OpenAI()
+        self.client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))
         # 从TXT文件加载提示信息
-        with open("prompts/report_prompt.txt", "r", encoding='utf-8') as file:
+        prompt_path = "prompts/report_prompt.txt" if source == "github" else "prompts/hacker_news_prompt.txt"
+        with open(prompt_path, "r", encoding='utf-8') as file:
             self.system_prompt = file.read()
 
     def generate_daily_report(self, markdown_content, dry_run=False):
