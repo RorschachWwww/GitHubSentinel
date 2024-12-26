@@ -3,7 +3,7 @@
         "token": "your_github_token",
         "subscriptions_file": "subscriptions.json",
         "progress_frequency_days": 1,
-        "progress_execution_time": "08:00"
+        "progress_execution_time": "21:57"
     },
     "email":  {
         "smtp_server": "smtp.exmail.qq.com",
@@ -21,7 +21,8 @@
     "report_types": [
         "github",
         "hacker_news_hours_topic",
-        "hacker_news_daily_report"
+        "hacker_news_daily_report",
+        "stack_overflow"
     ],
     "slack": {
         "webhook_url": "your_slack_webhook_url"

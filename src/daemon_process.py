@@ -11,6 +11,7 @@ from hacker_news_client import HackerNewsClient
 from notifier import Notifier  # 导入通知器类，用于发送通知
 from report_generator import ReportGenerator  # 导入报告生成器类
 from llm import LLM  # 导入语言模型类，可能用于生成报告内容
+from stack_overflow_client import StackOverflowClient
 from subscription_manager import SubscriptionManager  # 导入订阅管理器类，管理GitHub仓库订阅
 from logger import LOG  # 导入日志记录器
 
@@ -51,14 +52,27 @@ def hn_daily_job(hacker_news_client, report_generator, notifier):
     notifier.notify_hn_report(date, report)
     LOG.info(f"[定时任务执行完毕]")
 
+def stack_overflow_daily_job(stack_overflow_client, report_generator, notifier):
+    LOG.info("[开始执行定时任务]Stack Overflow今日python热点问题整理")
+    # 获取当前日期，并格式化为 'YYYY-MM-DD' 格式
+    date = datetime.now().strftime('%Y-%m-%d')
+
+    raw_file_path = stack_overflow_client.export_daily_issues()  # 导出原始数据文件路径
+    report, report_file_path = report_generator.generate_stack_overflow_issues_report(raw_file_path)  # 生成并获取报告内容及文件路径
+    notifier.notify_stack_overflow_report(date, report)
+    LOG.info(f"[定时任务执行完毕]")
+
+
 
 def main():
     # 设置信号处理器
     signal.signal(signal.SIGTERM, graceful_shutdown)
 
     config = Config()  # 创建配置实例
+    config.llm_model_type = "openai"
     github_client = GitHubClient(config.github_token)  # 创建GitHub客户端实例
     hacker_news_client = HackerNewsClient() # 创建 Hacker News 客户端实例
+    stack_overflow_client = StackOverflowClient()
     notifier = Notifier(config.email)  # 创建通知器实例
     llm = LLM(config)  # 创建语言模型实例
     report_generator = ReportGenerator(llm, config.report_types)  # 创建报告生成器实例
@@ -66,18 +80,24 @@ def main():
 
     # 启动时立即执行（如不需要可注释）
     # github_job(subscription_manager, github_client, report_generator, notifier, config.freq_days)
-    hn_daily_job(hacker_news_client, report_generator, notifier)
+    # hn_daily_job(hacker_news_client, report_generator, notifier)
+    stack_overflow_daily_job(stack_overflow_client, report_generator, notifier)
 
     # 安排 GitHub 的定时任务
-    schedule.every(config.freq_days).days.at(
-        config.exec_time
-    ).do(github_job, subscription_manager, github_client, report_generator, notifier, config.freq_days)
+    # schedule.every(config.freq_days).days.at(
+    #     config.exec_time
+    # ).do(github_job, subscription_manager, github_client, report_generator, notifier, config.freq_days)
     
     # 安排 hn_topic_job 每4小时执行一次，从0点开始
-    schedule.every(4).hours.at(":00").do(hn_topic_job, hacker_news_client, report_generator)
+    # schedule.every(4).hours.at(":00").do(hn_topic_job, hacker_news_client, report_generator)
 
     # 安排 hn_daily_job 每天早上10点执行一次
-    schedule.every().day.at("10:00").do(hn_daily_job, hacker_news_client, report_generator, notifier)
+    # schedule.every().day.at("10:00").do(hn_daily_job, hacker_news_client, report_generator, notifier)
+
+    # 安排stack overflow的定时任务
+    schedule.every(config.freq_days).days.at(
+        config.exec_time
+    ).do(stack_overflow_daily_job, stack_overflow_client, report_generator, notifier)
 
     try:
         # 在守护进程中持续运行

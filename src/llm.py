@@ -2,6 +2,7 @@ import json
 import requests
 from openai import OpenAI  # 导入OpenAI库用于访问GPT模型
 from logger import LOG  # 导入日志模块
+import os
 
 class LLM:
     def __init__(self, config):
@@ -13,7 +14,7 @@ class LLM:
         self.config = config
         self.model = config.llm_model_type.lower()  # 获取模型类型并转换为小写
         if self.model == "openai":
-            self.client = OpenAI()  # 创建OpenAI客户端实例
+            self.client = OpenAI(api_key = os.getenv("OPENAI_API_KEY"))  # 创建OpenAI客户端实例
         elif self.model == "ollama":
             self.api_url = config.ollama_api_url  # 设置Ollama API的URL
         else:

@@ -17,7 +17,7 @@ class Config:
             self.github_token = os.getenv('GITHUB_TOKEN', github_config.get('token'))
             self.subscriptions_file = github_config.get('subscriptions_file')
             self.freq_days = github_config.get('progress_frequency_days', 1)
-            self.exec_time = github_config.get('progress_execution_time', "08:00")
+            self.exec_time = github_config.get('progress_execution_time', "21:57")
 
             # 加载 LLM 相关配置
             llm_config = config.get('llm', {})
@@ -27,7 +27,7 @@ class Config:
             self.ollama_api_url = llm_config.get('ollama_api_url', 'http://localhost:11434/api/chat')
             
             # 加载报告类型配置
-            self.report_types = config.get('report_types', ["github", "hacker_news"])  # 默认报告类型
+            self.report_types = config.get('report_types', ["github", "hacker_news", "stack_overflow"])  # 默认报告类型
             
             # 加载 Slack 配置
             slack_config = config.get('slack', {})

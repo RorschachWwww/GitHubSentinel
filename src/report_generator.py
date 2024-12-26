@@ -88,6 +88,23 @@ class ReportGenerator:
                     markdown_content += file.read() + "\n"
         return markdown_content
 
+    def generate_stack_overflow_issues_report(self, markdown_file_path):
+        """
+        生成 Stack Overflow issues报告，存在stack_overflow/issues目录下。
+        """
+        with open(markdown_file_path, 'r') as file:
+            markdown_content = file.read()
+
+        system_prompt = self.prompts.get("stack_overflow")
+        report = self.llm.generate_report(system_prompt, markdown_content)
+
+        report_file_path = os.path.splitext(markdown_file_path)[0] + "_report.md"
+        with open(report_file_path, 'w+') as report_file:
+            report_file.write(report)
+
+        LOG.info(f"Stack Overflow 热点issues报告已保存到 {report_file_path}")
+        return report, report_file_path
+
 
 if __name__ == '__main__':
     from config import Config  # 导入配置管理类
